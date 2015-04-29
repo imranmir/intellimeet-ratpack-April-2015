@@ -9,29 +9,23 @@ import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
   bindings {
-    add MarkupTemplateModule
-    add(TextTemplateModule) /*{ TextTemplateModule.Config config -> config.staticallyCompile = true }*/
   }
 
   handlers {
-    get {
-      render groovyMarkupTemplate("index.gtpl", title: "My Ratpack App")
+    handler("persons/:id"){
+      byMethod {
+        get {
+          render "I am person with id $pathTokens.id and your name is "+request.queryParams.name
+        }
+
+        put {
+          Form form = parse(Form)
+          render form.toMapString()
+        }
+      }
     }
 
-    get("renderHtml"){
-      render groovyTemplate("first.html", title: "My Ratpack App")
-    }
-
-    get('renderSimpleString') {
-      render "Hello. I have been rendered as a String"
-    }
-
-    get("renderJSON"){
-      Map map = [firstName: 'imran', lastName: 'Mir']
-      render new JsonBuilder(map).toPrettyString()
-    }
-
-    post ("personForm"){
+    handler("persons"){
       Form form = parse(Form)
       render form.toMapString()
     }
