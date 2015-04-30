@@ -1,10 +1,5 @@
-import groovy.json.JsonBuilder
 import ratpack.form.Form
-import ratpack.groovy.template.MarkupTemplateModule
-import ratpack.groovy.template.TextTemplateModule
 
-import static ratpack.groovy.Groovy.groovyMarkupTemplate
-import static ratpack.groovy.Groovy.groovyTemplate
 import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
@@ -25,10 +20,15 @@ ratpack {
       }
     }
 
-    handler("persons"){
-      Form form = parse(Form)
-      render form.toMapString()
+    handler("persons") {
+      byMethod {
+        post {
+          Form form = parse(Form)
+          render form.toMapString()
+        }
+      }
     }
+
 
 
     assets "public"
