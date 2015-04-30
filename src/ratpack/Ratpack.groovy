@@ -17,35 +17,63 @@ ratpack {
   }
 
   handlers {
-    get {
-      render groovyMarkupTemplate("index.gtpl", title: "My Ratpack App")
-    }
-
-    get("renderHtml"){
-      render groovyTemplate("first.html", title: "My Ratpack App")
-    }
-
-    get('renderSimpleString') {
-      render "Hello. I have been rendered as a String"
-    }
-
-    get("renderJSON"){
-      Map map = [firstName: 'imran', lastName: 'Mir']
-      render new JsonBuilder(map).toPrettyString()
-    }
-
-    get("renderJSONUsingJackson"){
-      Map map = [firstName: 'imran', lastName: 'Mir']
-      render json(map)
-
-    }
-
-    post ("personForm"){
-      Form form = parse(Form)
-      render form.toMapString()
-    }
+      get("simpleAsync") {
+          blocking {
+              sleep(3000)
+              return "blockin operation result"
+          }.then { result ->
+              render result
+          }
+      }
 
 
-    assets "public"
+      get("asyncWithPromise") {
+          promise { fulfiller ->
+              Thread.start {
+                  sleep 1000
+                  fulfiller.success(["Hello world"])
+              }
+          }.then {def data ->
+              render(data.toString())
+          }
+          println "2"
+      }
+
+      get ("multipleAsyncs") {
+
+          def l = []
+          promise { f ->
+              Thread.start {
+                  sleep 3000
+                  f.success("1")
+              }
+          }.then {
+              l << it
+          }
+
+          promise { f ->
+              Thread.start {
+                  sleep 2000
+                  f.success("2")
+              }
+          }.then {
+              l << it
+          }
+
+          promise { f ->
+              Thread.start {
+                  sleep 1000
+                  f.success("3")
+              }
+          }.then {
+              l << it
+              render l.join(",")
+          }
+
+      }
+
+
+
+      assets "public"
   }
 }
