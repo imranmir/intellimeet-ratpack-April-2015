@@ -29,6 +29,11 @@ ratpack {
       }
     }
 
+    get("redirect"){
+      redirect("persons/1?name=redirected")
+
+    }
+
 
 
     assets "public"
