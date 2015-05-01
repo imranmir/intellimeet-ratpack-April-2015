@@ -1,15 +1,10 @@
-import groovy.json.JsonBuilder
 import ratpack.exec.ExecControl
 import ratpack.exec.Promise
-import ratpack.form.Form
 import ratpack.groovy.template.MarkupTemplateModule
 import ratpack.groovy.template.TextTemplateModule
-
-import static ratpack.groovy.Groovy.groovyMarkupTemplate
-import static ratpack.groovy.Groovy.groovyTemplate
-import static ratpack.groovy.Groovy.ratpack
 import ratpack.jackson.JacksonModule
-import static ratpack.jackson.Jackson.json
+
+import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
   bindings {
