@@ -1,8 +1,9 @@
-import ratpack.exec.ExecControl
-import ratpack.exec.Promise
+import groovy.json.JsonBuilder
 import ratpack.groovy.template.MarkupTemplateModule
 import ratpack.groovy.template.TextTemplateModule
-import ratpack.jackson.JacksonModule
+import ratpack.session.SessionModule
+import ratpack.session.clientside.ClientSideSessionsModule
+import ratpack.session.store.SessionStorage
 
 import static ratpack.groovy.Groovy.ratpack
 
@@ -10,58 +11,28 @@ ratpack {
   bindings {
     add MarkupTemplateModule
     add(TextTemplateModule) /*{ TextTemplateModule.Config config -> config.staticallyCompile = true }*/
-    add(new JacksonModule())
+      add SessionModule
+      add ClientSideSessionsModule
+
   }
 
   handlers {
-
-      get('readFile') {
-          blocking {
-              new File("/Users/apple/.bash_profile").text.toUpperCase()
-          } then {
-              render it
-          }
-      }
-      get('readFileImproved') {
-          blocking {
-              new File("/Users/apple/.bash_profile").text
-          } then {
-              render it.toUpperCase()
-          }
+      get('setSession'){
+        request.get(SessionStorage).put('name',request.queryParams.name)
       }
 
+    get("getSession"){
+      render request.get(SessionStorage.class).get('name');
+    }
 
-      get ('useCustomMethod'){
-          getFileTextUpper(context).then {
-              render it
-          }
-      }
-      get ('useCustomMethodUsingFlatMap'){
-          getFileTextUpperUsingFlatMapMap(context).then {
-              render it
-          }
-      }
+    get("config"){
+      File cfg = new File('./config', 'Config.groovy')
+      config = new ConfigSlurper().parse(cfg.text).app
+      render new JsonBuilder(config).toPrettyString()
+    }
+
 
       assets "public"
   }
 }
 
-Promise<String> getFileTextUpper(ExecControl control) {
-    control.blocking {
-        new File("/Users/apple/.bash_profile").text
-    }.map {
-        it.toUpperCase()
-    }
-}
-
-Promise<String> getFileTextUpperUsingFlatMapMap(ExecControl control) {
-    control.blocking {
-        new File("/Users/apple/.bash_profile").text
-    }.flatMap { s1 ->
-        control.blocking {
-            new File("/Users/apple/.aliases").text
-        }.map { s2 ->
-            s1 + s2
-        }
-    }
-}
