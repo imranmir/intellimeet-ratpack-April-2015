@@ -21,7 +21,11 @@ ratpack {
           blocking {
               sleep(3000)
               return "blockin operation result"
-          }.then { result ->
+          }.onError{ e->
+            response.status 500
+            response.send(e.message)
+          }
+          .then { result ->
               render result
           }
       }
