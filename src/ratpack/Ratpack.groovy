@@ -1,4 +1,6 @@
 import groovy.json.JsonBuilder
+import ratpack.exec.ExecControl
+import ratpack.exec.Promise
 import ratpack.form.Form
 import ratpack.groovy.template.MarkupTemplateModule
 import ratpack.groovy.template.TextTemplateModule
@@ -17,63 +19,54 @@ ratpack {
   }
 
   handlers {
-      get("simpleAsync") {
+
+      get('readFile') {
           blocking {
-              sleep(3000)
-              return "blockin operation result"
-          }.then { result ->
-              render result
+              new File("/Users/apple/.bash_profile").text.toUpperCase()
+          } then {
+              render it
+          }
+      }
+      get('readFileImproved') {
+          blocking {
+              new File("/Users/apple/.bash_profile").text
+          } then {
+              render it.toUpperCase()
           }
       }
 
 
-      get("asyncWithPromise") {
-          promise { fulfiller ->
-              Thread.start {
-                  sleep 1000
-                  fulfiller.success(["Hello world"])
-              }
-          }.then {def data ->
-              render(data.toString())
+      get ('useCustomMethod'){
+          getFileTextUpper(context).then {
+              render it
           }
-          println "2"
       }
-
-      get ("multipleAsyncs") {
-
-          def l = []
-          promise { f ->
-              Thread.start {
-                  sleep 3000
-                  f.success("1")
-              }
-          }.then {
-              l << it
+      get ('useCustomMethodUsingFlatMap'){
+          getFileTextUpperUsingFlatMapMap(context).then {
+              render it
           }
-
-          promise { f ->
-              Thread.start {
-                  sleep 2000
-                  f.success("2")
-              }
-          }.then {
-              l << it
-          }
-
-          promise { f ->
-              Thread.start {
-                  sleep 1000
-                  f.success("3")
-              }
-          }.then {
-              l << it
-              render l.join(",")
-          }
-
       }
-
-
 
       assets "public"
   }
+}
+
+Promise<String> getFileTextUpper(ExecControl control) {
+    control.blocking {
+        new File("/Users/apple/.bash_profile").text
+    }.map {
+        it.toUpperCase()
+    }
+}
+
+Promise<String> getFileTextUpperUsingFlatMapMap(ExecControl control) {
+    control.blocking {
+        new File("/Users/apple/.bash_profile").text
+    }.flatMap { s1 ->
+        control.blocking {
+            new File("/Users/apple/.aliases").text
+        }.map { s2 ->
+            s1 + s2
+        }
+    }
 }
