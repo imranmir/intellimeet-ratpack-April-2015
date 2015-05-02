@@ -1,3 +1,6 @@
+import anaimal.Animal
+import anaimal.AnimalModule
+import anaimal.Zoo
 import handlers.RouterHandler
 import handlers.TestHandler
 import ratpack.form.Form
@@ -7,9 +10,22 @@ import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
   bindings {
+
+    add AnimalModule
   }
 
   handlers {
+
+    get('testAnimal'){Animal an->
+      render an.run()
+    }
+
+    get("zoo"){Zoo zoo->
+      render zoo.run()
+    }
+
+
+
     handler("persons/:id"){
       byMethod {
         get {
