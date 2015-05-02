@@ -6,6 +6,8 @@ buildscript {
     classpath "io.ratpack:ratpack-gradle:0.9.15"
     classpath "com.github.jengelman.gradle.plugins:shadow:1.2.1"
   }
+
+
 }
 
 apply plugin: "io.ratpack.ratpack-groovy"
@@ -18,6 +20,8 @@ repositories {
   maven { url "https://repo.spring.io/repo" } // for springloaded
 }
 
+
+
 dependencies {
   // SpringLoaded enables runtime hot reloading.
   // It is not part of the app runtime and is not shipped in the distribution.
@@ -29,3 +33,9 @@ dependencies {
 
   testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
+
+task stage {
+  dependsOn shadowJar
+}
+
+
